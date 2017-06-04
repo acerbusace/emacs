@@ -1,0 +1,5 @@
+elpa/
+backups/
+custom.el
+recentf
+*.eld
