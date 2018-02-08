@@ -24,12 +24,15 @@
 ;; loads use-package
 (eval-when-compile
   (load "use-package"))
-(load "diminish")
 (load "bind-key")
 
 
 ;; install required packages
 ;;---------------------------
+(use-package diminish ; can be used to omit mode-names on status bar
+  :ensure t
+  :pin melpa)
+
 (use-package evil ; evil - adds vim-like functionality (vim-mode)
   :ensure t ; auto install package
   :pin melpa ; dependence (goto-chr) does not exists in melpa stable, so use melpa repository instead
