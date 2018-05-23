@@ -63,8 +63,7 @@
   ;; (setq neo-smart-open t) ; let neotree find current file and jump to node when it opens
   ;; (setq projectile-switch-project-action 'neotree-projectile-action)) ; actomatically change directory root to project
 
-;; overhauls search, also includes ivy (completion system)
-(use-package swiper
+(use-package swiper ; overhauls search, also includes ivy (completion system)
   :ensure t ; auto install package
   :pin melpa-stable
   :diminish ivy-mode
@@ -109,11 +108,40 @@
   ;; (setq projectile-indexing-method 'alien) ; force windows to use external indexing (git, etc; can cause issues)
   )
 
+(use-package web-mode ; mode for editing web templates
+  :ensure t ; auto install package
+  :pin melpa-stable
+  :config
+  ;; enable web mode for the following file extentions
+  (add-to-list 'auto-mode-alist '("\\.phtml\\'" . web-mode))
+  (add-to-list 'auto-mode-alist '("\\.tpl\\|\\.php\\'" . web-mode))
+  (add-to-list 'auto-mode-alist '("\\.[agj]sp\\'" . web-mode))
+  (add-to-list 'auto-mode-alist '("\\.as[cp]x\\'" . web-mode))
+  (add-to-list 'auto-mode-alist '("\\.erb\\'" . web-mode))
+  (add-to-list 'auto-mode-alist '("\\.mustache\\'" . web-mode))
+  (add-to-list 'auto-mode-alist '("\\.djhtml\\'" . web-mode))
+  (add-to-list 'auto-mode-alist '("\\.html?\\'" . web-mode)))
+
+(use-package csharp-mode ; mode for editing C# files
+  :ensure t ; auto install package
+  :pin melpa-stable
+  :config
+  (add-hook 'electric-pair-local-mode 1)) ;; enables electric-pair-mode when c# file is loaded up
+
+(use-package omnisharp ; autocompletion and syntax checking for C# files (remember to M-X omnisharp-install-server)
+  :ensure t ; auto install package
+  :pin melpa-stable
+  :config
+  (add-hook 'csharp-mode-hook 'omnisharp-mode)) ;; auto start omnisharp  when C# file is loaded up
+  ;; (define-key omnisharp-active-map (kbd "C-c r r") 'omnisharp-run-code-action-refactoring)
+  ;; (define-key omnisharp-active-map (kbd "C-c C-c") 'recompile))
+
 (use-package flycheck ; syntax checker
   :ensure t ; auto install package
   :pin melpa-stable
   :config
   ;; (global-flycheck-mode) ; enables global-flycheck-mode
+  ;; (add-hook 'csharp-mode-hook #'flycheck-mode) ; enables flycheck-mode when C# files are loaded up
   (add-hook 'prog-mode-hook #'flycheck-mode)) ; enable flycheck-mode on any programming language)
 
 (use-package company ; adds auto completion
@@ -121,6 +149,8 @@
   :pin melpa-stable
   :config
   (add-hook 'after-init-hook 'global-company-mode) ; enables global-company-mode
+  ;; (add-hook 'csharp-mode-hook #'company-mode) ; enables company mode when C# file is loaded up
+  (add-to-list 'company-backends 'company-omnisharp) ; add omnisharp as company mode backend
   (global-set-key (kbd "C-c SPC") 'company-complete) ; force company completion
   (define-key company-active-map (kbd "\C-n") 'company-select-next)
   (define-key company-active-map (kbd "\C-p") 'company-select-previous)
@@ -151,19 +181,6 @@
     :pin melpa-stable)
   )
 
-(use-package web-mode ; mode for editing web templates
-  :ensure t ; auto install package
-  :pin melpa-stable
-  :config
-  ;; enable web mode for the following file extentions
-  (add-to-list 'auto-mode-alist '("\\.phtml\\'" . web-mode))
-  (add-to-list 'auto-mode-alist '("\\.tpl\\|\\.php\\'" . web-mode))
-  (add-to-list 'auto-mode-alist '("\\.[agj]sp\\'" . web-mode))
-  (add-to-list 'auto-mode-alist '("\\.as[cp]x\\'" . web-mode))
-  (add-to-list 'auto-mode-alist '("\\.erb\\'" . web-mode))
-  (add-to-list 'auto-mode-alist '("\\.mustache\\'" . web-mode))
-  (add-to-list 'auto-mode-alist '("\\.djhtml\\'" . web-mode))
-  (add-to-list 'auto-mode-alist '("\\.html?\\'" . web-mode)))
 
 
 ;;------------------------------------------------------------------------------
@@ -173,7 +190,7 @@
 
 (setq auto-save-default nil); disable auto save
 ;; (setq make-backup-files nil) ; disable backup
-;; stop littering everywhere with save files, put them somewhere
+;; stop littering everywhere with save files, put them somewhere else
 (setq backup-directory-alist '(("." . "~/.emacs.d/backups")))
 
 ;; sets custom file location
@@ -200,7 +217,8 @@
 (show-paren-mode 1) ; highlights matching parenthesis
 (column-number-mode 1) ; display column/row of cursor in mode-line
 
-(add-hook 'prog-mode-hook #'linum-mode) ; shows line numbers on the left side of the buffer
+; shows line numbers on the left side of the buffer for programming files
+(add-hook 'prog-mode-hook #'linum-mode) 
 
 
 ;;------------------------------------------------------------------------------
@@ -218,6 +236,9 @@
 
 (when (or (eq window-system 'ms-dos) (eq window-system 'windows-nt))
   (setq tramp-default-method "plink"))
+
+(setq server-socket-dir "~/.emacs.d/server") ; path to server directory
+(server-start) ; starts server (use emacsclient.exe [file] to open file in current emacs buffer)
 ;;------------------------------------------------------------------------------
 ;; User defined functions
 ;;------------------------------------------------------------------------------
@@ -259,7 +280,3 @@
 ;;---------------------------------
 (global-set-key (kbd "C-c i") 'find-user-init-file)
 (global-set-key (kbd "C-c e") 'find-user-emacs-file)
-
-;;------------------------------------------------------------------------------
-;; Custom - created when installing plugins
-;;------------------------------------------------------------------------------
