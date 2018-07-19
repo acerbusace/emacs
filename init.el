@@ -156,6 +156,15 @@
   (define-key company-active-map (kbd "\C-p") 'company-select-previous)
   (define-key company-active-map (kbd "\C-d") 'company-show-doc-buffer))
 
+(use-package markdown-mode ; mark down preview
+  :ensure t
+  :pin melpa-stable
+  :commands (markdown-mode gfm-mode)
+  :mode (("README\\.md\\'" . gfm-mode)
+         ("\\.md\\'" . markdown-mode)
+         ("\\.markdown\\'" . markdown-mode))
+  :init (setq markdown-command "pandoc"))
+
 (use-package rainbow-delimiters
   :ensure t ; auto install package
   :pin melpa-stable
@@ -218,7 +227,7 @@
 (column-number-mode 1) ; display column/row of cursor in mode-line
 
 ; shows line numbers on the left side of the buffer for programming files
-(add-hook 'prog-mode-hook #'linum-mode) 
+(add-hook 'prog-mode-hook #'linum-mode)
 
 
 ;;------------------------------------------------------------------------------
@@ -237,8 +246,14 @@
 (when (or (eq window-system 'ms-dos) (eq window-system 'windows-nt))
   (setq tramp-default-method "plink"))
 
-(setq server-socket-dir "~/.emacs.d/server") ; path to server directory
-(server-start) ; starts server (use emacsclient.exe [file] to open file in current emacs buffer)
+;; starts server if not running
+;; use emacsclient.exe [file] to open file in current emacs buffer
+(add-hook 'after-init-hook
+    (lambda ()
+        (require 'server)
+        (setq server-socket-dir "~/.emacs.d/server") ; path to server directory
+        (unless (server-running-p)
+        (server-start))))
 ;;------------------------------------------------------------------------------
 ;; User defined functions
 ;;------------------------------------------------------------------------------
@@ -274,6 +289,13 @@
 (global-set-key (kbd "C-x -") 'split-window-vertically) ; splits window vertically
 
 (global-set-key (kbd "C-c C-c") 'comment-line) ; comments/uncomments a line
+
+;; use more advanced buffer
+;; 'm' marks current buffer
+;; 'D' kills all marked buffers
+;; 't' toggles markers
+;; 'x' kills current buffer
+(global-set-key (kbd "C-x C-b") 'ibuffer)
 
 
 ;; user define function bindings
