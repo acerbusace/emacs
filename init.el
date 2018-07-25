@@ -209,8 +209,10 @@
 
 (setq-default indent-tabs-mode nil) ; TAB inserts SPACE's
 (fset 'yes-or-no-p 'y-or-n-p) ; changes all yes/no questions to y/n type
+
 ;; delete trailing white-space from entire buffer before saving
-(add-hook 'before-save-hook 'delete-trailing-whitespace)
+;; Markdown relies on whitespace (E.g. 2 whitespaces at end of line indicates new line)
+;; (add-hook 'before-save-hook 'delete-trailing-whitespace)
 
 ;; list all plugins installed
 ;; (with-temp-file "~/.emacs.d/packages.txt" (insert (format "%S" package-activated-list)))
