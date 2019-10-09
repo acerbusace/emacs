@@ -87,7 +87,6 @@
   (ivy-mode 1)) ; enable ivy-mode (use ivy completion anywhere completing-read-function is used)
 
 (use-package counsel ; contains all counsel* functions which use ivy completion
-  :after swiper
   :ensure t ; auto install package
   :pin melpa-stable
   :bind
