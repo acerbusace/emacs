@@ -50,13 +50,6 @@
   (setq evil-want-keybinding nil)
   :config
   (evil-mode 1))
-
-(use-package evil-collection
-  :after evil
-  :ensure t
-  :config
-  (evil-collection-init))
-
   ;; ;; use default emacs behaviour in the following modes
   ;; (dolist (mode '(ag-mode
   ;;                 flycheck-error-list-mode
@@ -72,38 +65,48 @@
   ;;   (kbd "C-u")     'evil-scroll-up
   ;;   (kbd "C-w C-w") 'other-window))
 
+(use-package evil-collection ; adds a bunch of vim keybindings for other emacs parts evil doesn't touch
+  :after evil ; auto install package
+  :ensure t
+  :config
+  (evil-collection-init))
+
 (use-package swiper ; overhauls search, also includes ivy (completion system)
   :ensure t ; auto install package
   :pin melpa-stable
-  :diminish ivy-mode
   :init
-  (use-package counsel ; contains all counsel* functions which use ivy completion
-    :ensure t ; auto install package
-    :pin melpa-stable
-    :bind
-    ;; ivy-based interface to standard commands
-    (("M-x" . counsel-M-x)
-     ("C-x y" . counsel-yank-pop)
-     ("C-x C-f" . counsel-find-file)
-     ("C-h f" . counsel-describe-function)
-     ("C-h v" . counsel-describe-variable)
-     ;; ("<f1> l" . counsel-load-library)
-     ("C-h S" . counsel-info-lookup-symbol)
-     ;; ("f2> l" . counsel-unicode-char)
-     ;; ivy-based interface to sheel and system tools
-     ;; ("C-c g" . counsel-git)
-     ;; ("C-c j" . counsel-git-grep)
-     ;; ("C-c k" . counsel-ag)
-     ;; ("C-x l" . counsel-locate)
-    ))
-  (ivy-mode 1) ; enable ivy-mode (use ivy completion anywhere completing-read-function is used)
+  (setq ivy-use-virtual-buffers t ; add recent files to buffers list
+        enable-recursive-minibuffers t
+        ivy-count-format "(%d/%d) ")
   :bind
   ;; ivy-based interface to standard commands
   (("C-s" . swiper)
-   ("C-c C-r" . ivy-resume)) ; resumes the last ivy-based completion
+   ("C-c C-r" . ivy-resume) ; resumes the last ivy-based completion
+   ("<f6>" . ivy-resume)) ; resumes the last ivy-based completion
   :config
-  (setq ivy-use-virtual-buffers t ; add recent files to buffers list
-        ivy-count-format "(%d/%d) "))
+  (ivy-mode 1)) ; enable ivy-mode (use ivy completion anywhere completing-read-function is used)
+
+(use-package counsel ; contains all counsel* functions which use ivy completion
+  :after swiper
+  :ensure t ; auto install package
+  :pin melpa-stable
+  :bind
+  ;; ivy-based interface to standard commands
+  (("M-x" . counsel-M-x)
+   ("C-x C-f" . counsel-find-file)
+   ("C-h f" . counsel-describe-function)
+   ("C-h v" . counsel-describe-variable)
+   ("<f1> l" . counsel-load-library)
+   ("C-h S" . counsel-info-lookup-symbol)
+   ("f2> l" . counsel-unicode-char)
+   ;; ivy-based interface to sheel and system tools
+   ("C-c g" . counsel-git)
+   ("C-c j" . counsel-git-grep)
+   ("C-c k" . counsel-ag)
+   ("C-x l" . counsel-locate)
+   ("C-S-o" . counsel-rhythmbox)
+   ;; ("C-r" . counsel-minibuffer-history)
+   ))
 
 ;; (use-package web-mode ; mode for editing web templates
 ;;   :ensure t ; auto install package
