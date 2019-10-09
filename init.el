@@ -228,6 +228,8 @@
 
 ;; starts server if not running
 ;; use emacsclient.exe [file] to open file in current emacs buffer
+;; use emacsclient.exe -n [file] to open file in another emacs buffer
+;; use emacsclient.exe -c [file] to open file in another emacs window
 (add-hook 'after-init-hook
     (lambda ()
         (require 'server)
