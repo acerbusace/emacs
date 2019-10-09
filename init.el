@@ -97,7 +97,7 @@
    ("C-h v" . counsel-describe-variable)
    ("<f1> l" . counsel-load-library)
    ("C-h S" . counsel-info-lookup-symbol)
-   ("f2> l" . counsel-unicode-char)
+   ("<f2> l" . counsel-unicode-char)
    ;; ivy-based interface to sheel and system tools
    ("C-c g" . counsel-git)
    ("C-c j" . counsel-git-grep)
