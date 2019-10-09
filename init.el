@@ -23,45 +23,51 @@
 
 ;; loads use-package
 (eval-when-compile
-  (load "use-package"))
-(load "bind-key")
+  (require 'use-package))
+(require 'diminish)
+(require 'bind-key)
 
 
 ;; install required packages
 ;;---------------------------
-(use-package diminish ; can be used to omit mode-names on status bar
+(use-package auto-package-update ; used to auto update packages
   :ensure t
-  :pin melpa)
+  :pin melpa-stable
+  :config
+  (setq auto-package-update-delete-old-versions t)
+  (setq auto-package-update-hide-results t)
+  (auto-package-update-maybe)) ; auto update packages on startup
 
 (use-package evil ; evil - adds vim-like functionality (vim-mode)
   :ensure t ; auto install package
-  :pin melpa ; dependence (goto-chr) does not exists in melpa stable, so use melpa repository instead
-  :diminish undo-tree-mode
+  :pin melpa ; dependence (goto-chr) does not exist in melpa stable, so use melpa repository instead
+  :defer .1 ; don't block emacs when starting, load evil immediately afterwards
+  :init
+  (setq evil-want-integration t) ;; This is optional since it's already set to t by default.
+  (setq evil-want-keybinding nil)
   :config
-  (evil-mode 1)
-  ;; use default emacs behaviour in the following modes
-  (dolist (mode '(ag-mode
-                  flycheck-error-list-mode
-                  git-rebase-mode
-                  neotree-mode))
-    (add-to-list 'evil-emacs-state-modes mode))
-  ;; use hjkl and a few other key-bindgins in evil-emacs mode
-  (evil-add-hjkl-bindings occur-mode-map 'emacs
-    (kbd "/")       'evil-search-forward
-    (kbd "n")       'evil-search-next
-    (kbd "N")       'evil-search-previous
-    (kbd "C-d")     'evil-scroll-down
-    (kbd "C-u")     'evil-scroll-up
-    (kbd "C-w C-w") 'other-window))
+  (evil-mode 1))
 
-;; (use-package neotree ; file tree
-  ;; :ensure t ; auto install package
-  ;; :pin melpa-stable
-  ;; :config
-  ;; (global-set-key [f5] 'neotree-toggle) ; toggle neotree with <F8>
-  ;; ;; (setq neo-theme (if (display-graphic-p) 'arrow 'arrow)) ; changes theme: icons -> window system | arrow -> terminal
-  ;; (setq neo-smart-open t) ; let neotree find current file and jump to node when it opens
-  ;; (setq projectile-switch-project-action 'neotree-projectile-action)) ; actomatically change directory root to project
+(use-package evil-collection
+  :after evil
+  :ensure t
+  :config
+  (evil-collection-init))
+
+  ;; ;; use default emacs behaviour in the following modes
+  ;; (dolist (mode '(ag-mode
+  ;;                 flycheck-error-list-mode
+  ;;                 git-rebase-mode
+  ;;                 neotree-mode))
+  ;;   (add-to-list 'evil-emacs-state-modes mode))
+  ;; ;; use hjkl and a few other key-bindgins in evil-emacs mode
+  ;; (evil-add-hjkl-bindings occur-mode-map 'emacs
+  ;;   (kbd "/")       'evil-search-forward
+  ;;   (kbd "n")       'evil-search-next
+  ;;   (kbd "N")       'evil-search-previous
+  ;;   (kbd "C-d")     'evil-scroll-down
+  ;;   (kbd "C-u")     'evil-scroll-up
+  ;;   (kbd "C-w C-w") 'other-window))
 
 (use-package swiper ; overhauls search, also includes ivy (completion system)
   :ensure t ; auto install package
@@ -94,67 +100,43 @@
    ("C-c C-r" . ivy-resume)) ; resumes the last ivy-based completion
   :config
   (setq ivy-use-virtual-buffers t ; add recent files to buffers list
-        ivy-count-format "(%d/%d) ")
-  )
+        ivy-count-format "(%d/%d) "))
 
-(use-package projectile
-  :ensure t
-  :pin melpa-stable
-  :diminish projectile-mode
-  :init
-  (projectile-global-mode 1) ; make projectile automatically remember projects who's files have been accessed
-  :config
-  (setq projectile-completion-system 'ivy)
-  ;; (setq projectile-indexing-method 'alien) ; force windows to use external indexing (git, etc; can cause issues)
-  )
-
-(use-package web-mode ; mode for editing web templates
-  :ensure t ; auto install package
-  :pin melpa-stable
-  :config
-  ;; enable web mode for the following file extentions
-  (add-to-list 'auto-mode-alist '("\\.phtml\\'" . web-mode))
-  (add-to-list 'auto-mode-alist '("\\.tpl\\|\\.php\\'" . web-mode))
-  (add-to-list 'auto-mode-alist '("\\.[agj]sp\\'" . web-mode))
-  (add-to-list 'auto-mode-alist '("\\.as[cp]x\\'" . web-mode))
-  (add-to-list 'auto-mode-alist '("\\.erb\\'" . web-mode))
-  (add-to-list 'auto-mode-alist '("\\.mustache\\'" . web-mode))
-  (add-to-list 'auto-mode-alist '("\\.djhtml\\'" . web-mode))
-  (add-to-list 'auto-mode-alist '("\\.html?\\'" . web-mode)))
+;; (use-package web-mode ; mode for editing web templates
+;;   :ensure t ; auto install package
+;;   :pin melpa-stable
+;;   :mode (("\\.phtml\\'" . web-mode)
+;;          ("\\.tpl\\|\\.php\\'" . web-mode)
+;;          ("\\.[agj]sp\\'" . web-mode)
+;;          ("\\.as[cp]x\\'" . web-mode)
+;;          ("\\.erb\\'" . web-mode)
+;;          ("\\.mustache\\'" . web-mode)
+;;          ("\\.djhtml\\'" . web-mode)
+;;          ("\\.html?\\'" . web-mode)))
 
 (use-package csharp-mode ; mode for editing C# files
   :ensure t ; auto install package
   :pin melpa-stable
+  :mode "\\.cs\\'"
+  :interpreter "csharp"
   :config
   (add-hook 'electric-pair-local-mode 1)) ;; enables electric-pair-mode when c# file is loaded up
 
-(use-package omnisharp ; autocompletion and syntax checking for C# files (remember to M-X omnisharp-install-server)
-  :ensure t ; auto install package
-  :pin melpa-stable
-  :config
-  (add-hook 'csharp-mode-hook 'omnisharp-mode)) ;; auto start omnisharp  when C# file is loaded up
-  ;; (define-key omnisharp-active-map (kbd "C-c r r") 'omnisharp-run-code-action-refactoring)
-  ;; (define-key omnisharp-active-map (kbd "C-c C-c") 'recompile))
+;; (use-package omnisharp ; autocompletion and syntax checking for C# files (remember to M-X omnisharp-install-server)
+;;   :ensure t ; auto install package
+;;   :pin melpa-stable
+;;   :config
+;;   (add-hook 'csharp-mode-hook 'omnisharp-mode)) ;; auto start omnisharp  when C# file is loaded up
+;;   ;; (define-key omnisharp-active-map (kbd "C-c r r") 'omnisharp-run-code-action-refactoring)
+;;   ;; (define-key omnisharp-active-map (kbd "C-c C-c") 'recompile))
 
 (use-package flycheck ; syntax checker
   :ensure t ; auto install package
   :pin melpa-stable
-  :config
+  :hook ('prog-mode-hook . #'flycheck-mode)) ; enable flycheck-mode on any programming language)
+  ;; :config
   ;; (global-flycheck-mode) ; enables global-flycheck-mode
-  ;; (add-hook 'csharp-mode-hook #'flycheck-mode) ; enables flycheck-mode when C# files are loaded up
-  (add-hook 'prog-mode-hook #'flycheck-mode)) ; enable flycheck-mode on any programming language)
-
-(use-package company ; adds auto completion
-  :ensure t ; auto install package
-  :pin melpa-stable
-  :config
-  (add-hook 'after-init-hook 'global-company-mode) ; enables global-company-mode
-  ;; (add-hook 'csharp-mode-hook #'company-mode) ; enables company mode when C# file is loaded up
-  (add-to-list 'company-backends 'company-omnisharp) ; add omnisharp as company mode backend
-  (global-set-key (kbd "C-c SPC") 'company-complete) ; force company completion
-  (define-key company-active-map (kbd "\C-n") 'company-select-next)
-  (define-key company-active-map (kbd "\C-p") 'company-select-previous)
-  (define-key company-active-map (kbd "\C-d") 'company-show-doc-buffer))
+  ;; (add-hook 'csharp-mode-hook #'flycheck-mode)) ; enables flycheck-mode when C# files are loaded up
 
 (use-package markdown-mode ; mark down preview
   :ensure t
@@ -163,34 +145,27 @@
   :mode (("README\\.md\\'" . gfm-mode)
          ("\\.md\\'" . markdown-mode)
          ("\\.markdown\\'" . markdown-mode))
+  :interpreter ("markdown" . markdown-mode)
   :init (setq markdown-command "pandoc"))
 
-(use-package rainbow-delimiters
-  :ensure t ; auto install package
-  :pin melpa-stable
-  :config
-  ;; use more saturated colors
-  (require 'cl-lib)
-  (require 'color)
-  (cl-loop
-   for index from 1 to rainbow-delimiters-max-face-count
-   do
-   (let ((face (intern (format "rainbow-delimiters-depth-%d-face" index))))
-     (cl-callf color-saturate-name (face-foreground face) 30)))
-  ;; unmatched parens are displayed in bold red and with a strike through
-  (set-face-attribute 'rainbow-delimiters-unmatched-face nil
-                      :foreground 'unspecified
-                      :inherit 'error
-                      :strike-through t)
-  (add-hook 'prog-mode-hook #'rainbow-delimiters-mode)) ; enable rainbow-delimiters-mode on any programming language
-
 (if (display-graphic-p)
-  (use-package dracula-theme ; dracula theme
+  (use-package doom-themes ; doom theme (looks awesome!)
     :ensure t ; auto install package
-    :pin melpa-stable)
-  )
+    :pin melpa-stable
+    :config
+    ;;; Settings (defaults)
+    (setq doom-themes-enable-bold t    ; if nil, bold is universally disabled
+          doom-themes-enable-italic t  ; if nil, italics is universally disabled
+          ;; doom-one specific settings
+          doom-one-brighter-modeline nil
+          doom-one-brighter-comments nil)
+    (load-theme 'doom-one t))
 
-
+  ;; requires M-x all-the-icons-install-fonts (on windows chose a directory to download the fonts too and manually install)
+  (use-package doom-modeline ; doom modeline (looks awesome!)
+    :ensure t
+    :pin melpa-stable
+    :hook (after-init . doom-modeline-mode)))
 
 ;;------------------------------------------------------------------------------
 ;; General
@@ -256,6 +231,8 @@
         (setq server-socket-dir "~/.emacs.d/server") ; path to server directory
         (unless (server-running-p)
         (server-start))))
+
+
 ;;------------------------------------------------------------------------------
 ;; User defined functions
 ;;------------------------------------------------------------------------------
