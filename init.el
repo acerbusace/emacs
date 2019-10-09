@@ -24,7 +24,6 @@
 ;; loads use-package
 (eval-when-compile
   (require 'use-package))
-(require 'diminish)
 (require 'bind-key)
 
 
@@ -37,6 +36,10 @@
   (setq auto-package-update-delete-old-versions t)
   (setq auto-package-update-hide-results t)
   (auto-package-update-maybe)) ; auto update packages on startup
+
+;; (use-package diminish ; used to remove or change minor mode strings in your mode-line
+;;  :ensure t
+;;  :pin melpa-stable)
 
 (use-package evil ; evil - adds vim-like functionality (vim-mode)
   :ensure t ; auto install package
