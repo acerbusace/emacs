@@ -121,7 +121,6 @@
   :ensure t ; auto install package
   :pin melpa-stable
   :mode "\\.cs\\'"
-  :interpreter "csharp"
   :config
   (add-hook 'electric-pair-local-mode 1)) ;; enables electric-pair-mode when c# file is loaded up
 
@@ -144,12 +143,10 @@
 (use-package markdown-mode ; mark down preview
   :ensure t
   :pin melpa-stable
-  :commands (markdown-mode gfm-mode)
   :mode (("README\\.md\\'" . gfm-mode)
          ("\\.md\\'" . markdown-mode)
          ("\\.markdown\\'" . markdown-mode))
-  :interpreter ("markdown" . markdown-mode)
-  :init (setq markdown-command "pandoc"))
+  :init (setq markdown-command "multimarkdown"))
 
 (if (display-graphic-p)
   (use-package doom-themes ; doom theme (looks awesome!)
